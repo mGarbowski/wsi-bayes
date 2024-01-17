@@ -58,6 +58,9 @@ class BayesNetwork:
         self.nodes = nodes
         self.nodes_map = {node.label: idx for idx, node in enumerate(nodes)}
 
+    def labels(self) -> tuple[str, ...]:
+        return tuple(node.label for node in self.nodes)
+
     def get_conditions_tuple(self, values: list[bool], labels: list[str]) -> Conditions:
         return tuple(values[self.nodes_map[label]] for label in labels)
 

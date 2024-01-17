@@ -1,62 +1,27 @@
-from bayes_network import BayesNode, BayesNetwork
+import argparse
+
+from bayes_network import BayesNetwork
 
 
-def make_network():
-    chair = BayesNode(
-        label="Chair",
-        distribution={(): 0.8}
-    )
-
-    sport = BayesNode(
-        label="Sport",
-        distribution={(): 0.02}
-    )
-
-    back = BayesNode(
-        label="Back",
-        distribution={
-            (True, True): 0.9,
-            (True, False): 0.2,
-            (False, True): 0.9,
-            (False, False): 0.01,
-        },
-        parents=[chair, sport]
-    )
-
-    ache = BayesNode(
-        label="Ache",
-        distribution={
-            (True,): 0.7,
-            (False,): 0.1
-        },
-        parents=[back]
-    )
-
-    network = BayesNetwork([chair, sport, back, ache])
-    return network
-
-
-def check_expected_values(network: BayesNetwork):
-    data = network.generate_data(100)
-
-    n_chair = sum(1 for x in data if x[0])
-    n_sport = sum(1 for x in data if x[1])
-    n_back = sum(1 for x in data if x[2])
-    n_ache = sum(1 for x in data if x[3])
-
-    print(f"expected 80, real: {n_chair}")
-    print(f"expected 2, real: {n_sport}")
-    print(f"expected 18, real: {n_back}")
-    print(f"expected 20, real: {n_ache}")
+def generate_csv_formatted_data(item_count: int, network_filename: str):
+    network = BayesNetwork.load_from_file(network_filename)
+    data = network.generate_data(item_count)
+    csv_data = [
+        ",".join(network.labels()),
+        *[",".join(map(lambda x: "1" if x else "0", item)) for item in data]
+    ]
+    csv_string = "\n".join(csv_data)
+    print(csv_string)
 
 
 def main():
-    network = make_network()
-    check_expected_values(network)
-    network.save_to_file("network.json")
-    network_2 = BayesNetwork.load_from_file("network.json")
-    check_expected_values(network_2)
+    parser = argparse.ArgumentParser(description="Generate data from Bayes network in .csv format.")
+    parser.add_argument("items_count", type=int, help="The number of items to generate.")
+    parser.add_argument("--file", "-f", type=str, help="The file representing Bayes network.")
+
+    args = parser.parse_args()
+    generate_csv_formatted_data(args.items_count, args.file)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
