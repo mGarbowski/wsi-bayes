@@ -1,3 +1,4 @@
+from pprint import pprint
 from random import random
 
 
@@ -16,24 +17,44 @@ class BayesNode:
                 raise ValueError("Distribution does not match the parent nodes")
 
         self.label = label
-        self.parent = parents
+        self.parents = parents
         self.distribution = distribution
 
     def generate_value(self, conditions: tuple[bool, ...]) -> bool:
         true_probability = self.distribution[conditions]
-        return true_probability < random()
+        return random() < true_probability
+
+    def parent_labels(self):
+        return [parent.label for parent in self.parents]
 
 
 class BayesNetwork:
+    """Bayes Network
+
+    nodes are in the order they will be evaluated
+    """
     final_node: BayesNode
     nodes: list[BayesNode]
+    nodes_map: dict[str, int]
 
     def __init__(self, final_node: BayesNode, nodes: list[BayesNode]):
         self.final_node = final_node
         self.nodes = nodes
+        self.nodes_map = {node.label: idx for idx, node in enumerate(nodes)}
+
+    def get_conditions_tuple(self, values: list[bool], labels: list[str]) -> tuple[bool, ...]:
+        return tuple(values[self.nodes_map[label]] for label in labels)
 
     def generate_data_point(self) -> tuple[bool, ...]:
-        raise NotImplementedError
+        data_point = [False for _ in range(len(self.nodes))]
+        for idx, node in enumerate(self.nodes):
+            conditions = self.get_conditions_tuple(data_point, node.parent_labels())
+            data_point[idx] = node.generate_value(conditions)
+
+        return tuple(data_point)
+
+    def generate_data(self, n_items: int) -> list[tuple[bool, ...]]:
+        return [self.generate_data_point() for _ in range(n_items)]
 
     def load_from_file(self):
         raise NotImplementedError
@@ -42,7 +63,7 @@ class BayesNetwork:
         raise NotImplementedError
 
 
-def main():
+def make_network():
     chair = BayesNode(
         label="Chair",
         distribution={(): 0.8}
@@ -74,6 +95,22 @@ def main():
     )
 
     network = BayesNetwork(ache, [chair, sport, back, ache])
+    return network
+
+
+def main():
+    network = make_network()
+    data = network.generate_data(100)
+
+    n_chair = sum(1 for x in data if x[0])
+    n_sport = sum(1 for x in data if x[1])
+    n_back = sum(1 for x in data if x[2])
+    n_ache = sum(1 for x in data if x[3])
+
+    print(f"expected 80, real: {n_chair}")
+    print(f"expected 2, real: {n_sport}")
+    print(f"expected 18, real: {n_back}")
+    print(f"expected 20, real: {n_ache}")
 
 
 if __name__ == '__main__':
