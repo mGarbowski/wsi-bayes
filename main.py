@@ -1,13 +1,16 @@
-from pprint import pprint
+import json
 from random import random
+
+DataPoint = tuple[bool, ...]
+Conditions = tuple[bool, ...]
 
 
 class BayesNode:
     label: str
-    distribution: dict[tuple[bool, ...], float]
+    distribution: dict[Conditions, float]
     parents: list['BayesNode']
 
-    def __init__(self, label: str, distribution: dict[tuple[bool, ...], float], parents: list['BayesNode'] = None):
+    def __init__(self, label: str, distribution: dict[Conditions, float], parents: list['BayesNode'] = None):
         parents = parents if parents is not None else []
         if len(distribution) != 2 ** len(parents):
             raise ValueError("Distribution does not match the parent nodes")
@@ -20,32 +23,45 @@ class BayesNode:
         self.parents = parents
         self.distribution = distribution
 
-    def generate_value(self, conditions: tuple[bool, ...]) -> bool:
+    def generate_value(self, conditions: Conditions) -> bool:
         true_probability = self.distribution[conditions]
         return random() < true_probability
 
-    def parent_labels(self):
+    def parent_labels(self) -> list[str]:
         return [parent.label for parent in self.parents]
+
+    def as_dict(self) -> dict:
+        distribution = [
+            {
+                "conditions": list(conditions),
+                "probability": probability
+            }
+            for conditions, probability in self.distribution.items()
+        ]
+
+        return {
+            "label": self.label,
+            "distribution": distribution,
+            "parent_labels": self.parent_labels()
+        }
 
 
 class BayesNetwork:
     """Bayes Network
 
-    nodes are in the order they will be evaluated
+    nodes are in the order they will be evaluated and in the order they will appear as columns
     """
-    final_node: BayesNode
     nodes: list[BayesNode]
     nodes_map: dict[str, int]
 
-    def __init__(self, final_node: BayesNode, nodes: list[BayesNode]):
-        self.final_node = final_node
+    def __init__(self, nodes: list[BayesNode]):
         self.nodes = nodes
         self.nodes_map = {node.label: idx for idx, node in enumerate(nodes)}
 
-    def get_conditions_tuple(self, values: list[bool], labels: list[str]) -> tuple[bool, ...]:
+    def get_conditions_tuple(self, values: list[bool], labels: list[str]) -> Conditions:
         return tuple(values[self.nodes_map[label]] for label in labels)
 
-    def generate_data_point(self) -> tuple[bool, ...]:
+    def generate_data_point(self) -> DataPoint:
         data_point = [False for _ in range(len(self.nodes))]
         for idx, node in enumerate(self.nodes):
             conditions = self.get_conditions_tuple(data_point, node.parent_labels())
@@ -53,14 +69,15 @@ class BayesNetwork:
 
         return tuple(data_point)
 
-    def generate_data(self, n_items: int) -> list[tuple[bool, ...]]:
+    def generate_data(self, n_items: int) -> list[DataPoint]:
         return [self.generate_data_point() for _ in range(n_items)]
 
     def load_from_file(self):
         raise NotImplementedError
 
-    def save_to_file(self):
-        raise NotImplementedError
+    def save_to_file(self, filename: str):
+        with open(filename, mode='wt', encoding="utf-8") as file:
+            file.write(json.dumps([node.as_dict() for node in self.nodes]))
 
 
 def make_network():
@@ -94,11 +111,11 @@ def make_network():
         parents=[back]
     )
 
-    network = BayesNetwork(ache, [chair, sport, back, ache])
+    network = BayesNetwork([chair, sport, back, ache])
     return network
 
 
-def main():
+def check_expected_values():
     network = make_network()
     data = network.generate_data(100)
 
@@ -111,6 +128,12 @@ def main():
     print(f"expected 2, real: {n_sport}")
     print(f"expected 18, real: {n_back}")
     print(f"expected 20, real: {n_ache}")
+
+
+def main():
+    # check_expected_values()
+    network = make_network()
+    network.save_to_file("network.json")
 
 
 if __name__ == '__main__':
