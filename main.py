@@ -72,12 +72,28 @@ class BayesNetwork:
     def generate_data(self, n_items: int) -> list[DataPoint]:
         return [self.generate_data_point() for _ in range(n_items)]
 
-    def load_from_file(self):
-        raise NotImplementedError
+    @classmethod
+    def load_from_file(cls, filename: str) -> 'BayesNetwork':
+        with open(filename, mode="rt", encoding="utf-8") as file:
+            node_dicts = json.load(file)
+
+        node_map: dict[str, BayesNode] = dict()
+        nodes = []
+        for nd in node_dicts:
+            distribution = {
+                tuple(d_row["conditions"]): d_row["probability"]
+                for d_row in nd["distribution"]
+            }
+            parents = [node_map[label] for label in nd["parent_labels"]]
+            node = BayesNode(nd["label"], distribution, parents)
+            node_map[node.label] = node
+            nodes.append(node)
+
+        return cls(nodes)
 
     def save_to_file(self, filename: str):
-        with open(filename, mode='wt', encoding="utf-8") as file:
-            file.write(json.dumps([node.as_dict() for node in self.nodes]))
+        with open(filename, mode="wt", encoding="utf-8") as file:
+            json.dump([node.as_dict() for node in self.nodes], file, indent=2)
 
 
 def make_network():
@@ -115,8 +131,7 @@ def make_network():
     return network
 
 
-def check_expected_values():
-    network = make_network()
+def check_expected_values(network: BayesNetwork):
     data = network.generate_data(100)
 
     n_chair = sum(1 for x in data if x[0])
@@ -131,9 +146,11 @@ def check_expected_values():
 
 
 def main():
-    # check_expected_values()
     network = make_network()
+    check_expected_values(network)
     network.save_to_file("network.json")
+    network_2 = BayesNetwork.load_from_file("network.json")
+    check_expected_values(network_2)
 
 
 if __name__ == '__main__':
