@@ -1,6 +1,6 @@
 import argparse
 
-from bayes_network import BayesNetwork
+from bayes.bayes_network import BayesNetwork
 
 
 def generate_csv_formatted_data(item_count: int, network_filename: str):

@@ -9,7 +9,7 @@ Assignment for Introduction to Artificial Intelligence Course @ Warsaw Universit
 Example network is represented in [network.json](./docs/network.json)
 
 ```shell
-python main.py 10 -f ./docs/network.json > ./docs/data.csv
+python main.py 10 -f ./docs/network.json > ./docs/data1.csv
 ```
 
 Produces [data.csv](./docs/data.csv)

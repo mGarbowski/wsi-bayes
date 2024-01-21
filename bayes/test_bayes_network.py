@@ -36,13 +36,23 @@ def make_network():
     return network
 
 
-def check_expected_values(network: BayesNetwork):
-    data = network.generate_data(100)
+def check_expected_values(network: BayesNetwork, n_runs = 25):
+    n_chair = 0
+    n_sport = 0
+    n_back = 0
+    n_ache = 0
 
-    n_chair = sum(1 for x in data if x[0])
-    n_sport = sum(1 for x in data if x[1])
-    n_back = sum(1 for x in data if x[2])
-    n_ache = sum(1 for x in data if x[3])
+    for _ in range(n_runs):
+        data = network.generate_data(100)
+        n_chair += sum(1 for x in data if x[0])
+        n_sport += sum(1 for x in data if x[1])
+        n_back += sum(1 for x in data if x[2])
+        n_ache += sum(1 for x in data if x[3])
+
+    n_chair /= n_runs
+    n_sport /= n_runs
+    n_back /= n_runs
+    n_ache /= n_runs
 
     print(f"expected 80, real: {n_chair}")
     print(f"expected 2, real: {n_sport}")
@@ -54,7 +64,7 @@ def main():
     network = make_network()
     check_expected_values(network)
     network.save_to_file("./docs/network.json")
-    network_2 = BayesNetwork.load_from_file("./docs/network.json")
+    network_2 = BayesNetwork.load_from_file("../docs/network.json")
     check_expected_values(network_2)
 
 
