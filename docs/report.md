@@ -45,6 +45,8 @@ Wyniki klasyfikacji dla sieci o zmodyfikowanym rozkładzie Back, tak, że wszyst
 prawdopodobieństwa w tabeli wynoszą 0,5.
 
 Wyniki są słabsze niż dla poprzedniego zbioru, jednak dalej stosunkowo dobre z dokładnością 78%.
+Czułość modelu jest znacznie lepsza dla tego zbioru danych.
+
 Dla bardziej równomiernego rozkładu trudniej jest wyznaczyć dobre decyzje w drzewie, granice między klasami 
 są mniej wyraźne.
 

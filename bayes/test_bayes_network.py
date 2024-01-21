@@ -54,17 +54,17 @@ def check_expected_values(network: BayesNetwork, n_runs = 25):
     n_back /= n_runs
     n_ache /= n_runs
 
-    print(f"expected 80, real: {n_chair}")
-    print(f"expected 2, real: {n_sport}")
-    print(f"expected 18, real: {n_back}")
-    print(f"expected 20, real: {n_ache}")
+    print(f"expected 80.00, real: {n_chair}")
+    print(f"expected 2.00, real: {n_sport}")
+    print(f"expected 17.68, real: {n_back}")
+    print(f"expected 20.61, real: {n_ache}")
 
 
 def main():
     network = make_network()
     check_expected_values(network)
     network.save_to_file("./docs/network.json")
-    network_2 = BayesNetwork.load_from_file("../docs/network.json")
+    network_2 = BayesNetwork.load_from_file("./docs/network.json")
     check_expected_values(network_2)
 
 
