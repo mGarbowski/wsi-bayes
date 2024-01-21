@@ -6,7 +6,21 @@ oraz zbadanie działania zaimplementowanego wcześniej klasyfikatora opartego o 
 
 ## Generator danych
 Program `main.py` przyjmuje rozmiar zbioru danych i ścieżkę do pliku reprezentującego sieć,
-wypisuje na wyjście standardowe dane zgodnie z formatem .csv 
+wypisuje na wyjście standardowe dane zgodnie z formatem .csv
+
+```
+Chair,Sport,Back,Ache
+1,0,0,0
+1,0,1,1
+1,0,0,0
+1,0,0,0
+1,0,0,0
+1,0,0,0
+1,0,0,0
+1,0,0,0
+0,0,0,0
+1,0,0,0
+```
 
 Jak widać uruchamiając skrypt `test.py` liczba rekordów w każdej klasie jest zbliżona do wartości oczekiwanych,
 wynikających z zadanego rozkładu (wartości uśrednione z 25 uruchomień)
