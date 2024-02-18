@@ -38,6 +38,7 @@ Zbiór danych o rozmiarze 1000 wygenerowany opisanym wcześniej programem.
 Wyniki są stosunkowo dobre, model daje wysoką dokładność na poziomie 85%.
 Spostrzeżenie: w każdym wierszu tabeli rozkładu stosunki prawdopodobieństw są duże (np. 0,9:0,1; 0,8:0,2).
 W danych wygenerowanych na podstawie takiej sieci da się sensownie wyznaczyć decyzje w drzewie.
+Z drugiej strony, przy zadanym rozkładzie, dokładność 80% osiągnąłby model, który zawsze przewiduje tą samą klasę.
 
 Za wartość pozytywną przyjmuję ból pleców (1), a za negatywną brak bólu pleców (0).
 
